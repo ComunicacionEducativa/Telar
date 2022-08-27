@@ -1,0 +1,86 @@
+li{
+    list-style-type: none;
+}
+
+a{
+    color:  black;
+    text-decoration: none;
+}
+
+.opcion{
+    background-color: lightsalmon;
+    text-align: center;
+    margin:  5px;
+}
+
+.opcionTexto{
+    padding:  10px;
+}
+
+.opcion:hover{
+    background-color:  #be6d4c;
+}
+
+.menu button{
+    border:  none;
+    background:  none;
+    padding:  0;
+    font:  inherit;
+    cursor:  pointer;
+}
+
+.menu .submenu {
+    overflow: hidden;
+    max-height: 0;
+    background: whitesmoke;
+}
+
+.menu .submenu button{
+    background:  darkgrey;
+    padding:  5px;
+    color:  white;
+}
+
+
+.menu .submenu button:hover{
+    background:  grey;
+    padding:  5px;
+    color:  white;
+}
+
+.menu .submenu a::before{
+    content:'';
+    display:block;
+    position: absolute;
+    top:0;
+    left:0;
+    height: 100%;
+    width: 5px;
+    opacity: 0;
+}
+
+.menu .submenu a:hover{
+    padding-left: calc(1rem + 5px);
+}
+
+.menu .submenu a:hover::before{
+    opacity: 1;
+}
+
+.menu .submenu input{
+    border: none;
+    border-bottom:  dashed grey 2px;
+    background-color:  inherit;
+    color:  grey;
+    margin-right: 15px;
+}
+
+.menu .submenu input:focus{
+    outline: none;
+}
+
+.opcion:target .submenu{
+    max-height: 20rem;
+    padding:  20px;
+    border-bottom: solid lightsalmon 10px;
+}
