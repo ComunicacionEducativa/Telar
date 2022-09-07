@@ -23,6 +23,18 @@ import otomi_verde2 from './otomi/verde2.png';
 import otomi_verde3 from './otomi/verde3.png';
 import otomi_verde4 from './otomi/verde4.png';
 import otomi_verde5 from './otomi/verde5.png';
+import personaje1 from './otomi/personaje1.png'
+import personaje2 from './otomi/personaje2.png'
+import personaje3 from './otomi/personaje3.png'
+import telar_de_cintura from './telar de cintura.png'
+import ins1 from './instrucciones_digital1.png'
+import ins2 from './instrucciones_digital2.png'
+import ins3 from './instrucciones_digital3.png'
+import ins4 from './instrucciones_digital4.png'
+import ins5 from './instrucciones_digital5.png'
+import ins6 from './instrucciones_digital6.png'
+import ins7 from './instrucciones_digital7.png'
+
 
 const imagenes_fichas = {
   otomi: {
@@ -34,6 +46,27 @@ const imagenes_fichas = {
   }
 }
 
+const imagenes_informacion = {
+  telar: telar_de_cintura,
+  otomi: {
+    p1: personaje1,
+    p2: personaje2,
+    p3: personaje3 
+  }
+}
+
+const imagenes_tutorial = {
+  instruccion1: ins1,
+  instruccion2: ins2,
+  instruccion3: ins3,
+  instruccion4: ins4,
+  instruccion5: ins5,
+  instruccion6: ins6,
+  instruccion7: ins7,
+}
+
 export default {
-  imagenes_fichas
+  imagenes_fichas, 
+  imagenes_informacion, 
+  imagenes_tutorial
 };

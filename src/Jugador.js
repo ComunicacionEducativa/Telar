@@ -311,7 +311,7 @@ class Jugador extends React.Component{
   renderFicha(ficha, op = true){
     if(ficha){
       var funcionOnclick = () => void 0
-      if(this.props.status == "activo"){
+      if(this.state.fichasEnCanasta.includes(ficha["id"])){
         var funcionOnclick = () => this.elegirSubconjunto(ficha)
       }
       let color = ficha["color"]
@@ -397,7 +397,7 @@ class Jugador extends React.Component{
   renderTablero(){
     var columnas
     columnas = (arr) => arr.map(x => Array.isArray(x) ? columnas(x) : this.renderFicha(this.props.sala["fichas"][x]))
-    if(this.props.sala["status"] == "activo"){
+    if(this.props.sala["status"] == "activo" || this.props.sala["status"] == "final"){
       return(<Tablero 
                       ficha = {this.state.fichaElegida} 
                       puntuacion = {this.props.sala["usuarios"][this.props.jugador].puntuacion[1]}
@@ -432,15 +432,15 @@ class Jugador extends React.Component{
     console.log(this.props.sala["status"])
     var cls = "botones-y-jugador"
     if(!this.props.sala["local"]){
-      var mostrarBotones = (this.props.sala["status"] == "activo") && (this.props.socket.current.id == this.props.sala["usuarios"][this.props.jugador]["usuario"])  && (this.props.socket.current.id == this.props.sala["turno"])
+      var mostrarBotones = (this.props.socket.current.id == this.props.sala["usuarios"][this.props.jugador]["usuario"])  && (this.props.socket.current.id == this.props.sala["turno"])
     } else { //multiplayer local
-      var mostrarBotones = (this.props.sala["status"] == "activo") && (this.props.sala["usuarios"][this.props.jugador]["usuario"] == this.props.sala["turno"])
+      var mostrarBotones = (this.props.sala["usuarios"][this.props.jugador]["usuario"] == this.props.sala["turno"])
     }
     var botones = [this.renderGoButton(), this.renderUndoButton()]
     if(this.props.sala["usuarios"][this.props.jugador]["usuario"] == this.props.sala["turno"]){
       cls = "botones-y-jugador jugador-actual"
     }
-    if(mostrarBotones && this.props.sala["status"] != "final"){
+    if(mostrarBotones && (this.props.sala["status"] == "activo")){
       return(
         <div class = {cls}>
             <div class = "botones">

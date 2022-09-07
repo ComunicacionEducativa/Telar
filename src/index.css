@@ -7,13 +7,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: antiquewhite;
   padding:  0% 10% 0% 10%  ;
+  font-size: 100%;
 }
 
 .header{
-    background:  red;
     width:  80%;
-    height:  100px;
     margin:  20px auto;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+h1{
+  text-align: center;
+  font-size: 2.5em;
 }
 
 code {
