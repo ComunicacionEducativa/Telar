@@ -51,9 +51,10 @@ function nuevoTablero(tamano = 5){
 				  	puntuacion: [0, []]}
   }
 
-function nuevaSala(usuarioId, nombre, esLocal = false){
+function nuevaSala(usuarioId, nombre, pueblo = "otomi", esLocal = false){
   	return {
   		usuarios: [nuevoJugador(usuarioId)], 
+  		pueblo: pueblo,
   		local : esLocal,
   		sala: nombre,
   		fichas: [], //Diccionario de fichas

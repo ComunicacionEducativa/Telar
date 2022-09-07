@@ -181,6 +181,7 @@ CANASTA*/
 
 .jugador-actual{
   outline: 10px solid palegoldenrod;
+  width: 550px;
   background-color: white;
   border-radius:  90px;
 }
@@ -198,7 +199,40 @@ CANASTA*/
   border:  dashed 3px goldenrod;
 }
 
-@media screen and (max-width:  1300px){
+ol{
+  display: span;
+  list-style-type: decimal;
+  list-style-position: inside ;
+  margin-left: 15px;
+  padding-left: 15px;
+  text-align: left;
+}
+
+ol li{
+  display: list-item;
+  list-style-position: inside ;
+  margin-left: 15px;
+  padding-left: 15px;
+}
+
+@media screen and (min-width: 591px) and (max-width: 1568px){
+  .botones-y-jugador{
+    width: 660px;
+    text-align: center;
+  }
+  .jugador{
+    border-bottom: 5px dashed goldenrod;
+    width:  100%;
+  }
+
+  .jugador-actual{
+    height: 460px;
+  }
+
+}
+
+
+@media screen and (max-width:  590px){
   h1{
     font-size: 15px;
   }
@@ -253,7 +287,8 @@ CANASTA*/
     max-width: 50%;
   }
   .basura{
-    max-width: 50%;
+
+    width: 50%;
   }
 
   .botones{

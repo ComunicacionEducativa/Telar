@@ -35,6 +35,14 @@ a{
     background: whitesmoke;
 }
 
+.menu .submenu select{
+    background: white;
+    outline:  none;
+    border: 2px dashed darkgrey;
+    color:  grey;
+    margin-left: 1%;
+}
+
 .menu .submenu button{
     background:  darkgrey;
     padding:  5px;
@@ -73,14 +81,19 @@ a{
     background-color:  inherit;
     color:  grey;
     margin-right: 15px;
+    margin-left:  1%;
 }
 
 .menu .submenu input:focus{
     outline: none;
 }
 
+.menu img{
+    width: 100%;
+}
+
 .opcion:target .submenu{
-    max-height: 20rem;
+    max-height: 300rem;
     padding:  20px;
     border-bottom: solid lightsalmon 10px;
 }
