@@ -1,6 +1,5 @@
 import React from 'react';
 import ItemTypes from './ItemTypes'
-import {DndProvider, useDrag, useDrop} from 'react-dnd'
 
 //TODO: FIND A WAY TO MAKE THESE IMPORTS BETTER
 import v2_i from './Assets/vara1_izq.png';
@@ -43,23 +42,10 @@ function Square(props) {
 
 
 function ColSquare(props) {
-  const[{isOver}, drop] = useDrop(() => ({
-    accept: ItemTypes.FICHA,
-    drop: (item, monitor) => props.ondrop(monitor.getItem()),
-    collect: mon => ({
-      isOver:!!mon.isOver(),
-    }),
-  }))
+  var classname = props.valido ? "square col-square valido" :"square col-square" 
   return (
-    <div 
-      ref={drop}
-    >
-    <div style={{backgroundImage: `url(${props.image})`}} className="square col-square" onClick = {props.onclick}>
+    <div style={{backgroundImage: `url(${props.image})`}} className={classname} onClick = {props.onclick}>
       {props.value}
-    </div>
-    {isOver && (
-      <div  />
-      )}
     </div>
   )
 };
@@ -97,6 +83,7 @@ class Tablero extends React.Component {
     return (
       <ColSquare
         value={this.props.cols[col][fil]}
+        valido = {this.props.opacities[col][fil]}
         onclick = {() => this.fichaEnColumna(col, this.props.ficha)}
         ondrop = {(f) => this.dndFichaEnColumna(col, f)}
         image = {img}

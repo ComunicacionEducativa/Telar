@@ -6,17 +6,7 @@ import './index.css';
 import {DndProvider, useDrag, useDrop} from 'react-dnd'
 import{HTML5Backend} from 'react-dnd-html5-backend'
 
-//TODO: DRAG AND DROP
 
-//todo (less urgent) lots of refactoring, see if I can eliminate a lot of the
-// "mirroring" going on in componentdidupdate, why dont i just use props 
-// from the source? 
-
-//TODO WHEN REFACTORING: Instead of having a text field that users can input anything into,
-// have the game generate a random hex code you can send to your friends, and limit
-// number of characters they can enter into the enter nbox 
-
-//TODO (extreeeeemely low priority): spectator mode
 
 const ItemTypes = {
   FICHA: 'Ficha'
@@ -79,7 +69,6 @@ class Tablero extends React.Component {
     super(props);
   }
 
-  //TODO: DONT RUN FOR EVERY FICHA, ONLY THE ONES THAT HAVE BEEN DROPPED!
   highlight(i){
     const col = Math.floor(i/5)
     const fila = i%5
@@ -149,7 +138,6 @@ class Tablero extends React.Component {
   }
 
   render() {
-    //todo: there's gotta be a better way than this 
     return (
       <div>
         <div className="board-row">
@@ -306,14 +294,9 @@ class Player extends React.Component{
     }
   }
 
-  //TODO: Refactor this, get it out of here
   //TODO: REALLY WORRIED ABOUT WHAT HAPPENS SI UN JUGADOR ACABA CON LAS FICHAS
   //EN SU CANASTA EN LA PRIMERA RONDA, PERO AUN HAY FICHAS EN OTRAS CANASTAS!
   //PROBABLEMENTE SE SOLUCIONE CON UN "PLAYER TURN" 
-  //TODO: RERENDERING TABLERO EVEN WHEN I DON'T HAVE TO, FUCKING STUPID
-
-
-  //TODO: make this respond to GAME TURN not to FICHAS CHANGE 
   componentDidUpdate(prevProps){
     if(this.props.fichas !== prevProps.fichas){
       console.log(`Cambio en fichas! `)
@@ -394,7 +377,7 @@ class Player extends React.Component{
         const newCanasta = this.state.fichasEnCanasta.slice()
         let fil = 0
         while(fil < len && this.state.cols[col][fil]){
-          fil++
+          fil++Telar
         }
         console.log(`Poniendo en columna ${col}, fila ${fil}`)
         if(fil == len){ // Esta llena la columna
@@ -673,8 +656,6 @@ function GameRoom(props){
   if(props.room["activo"]){
     var idx = 0;
     for(const usr in props.room["usuarios"]){
-      console.log(`COLUMNAS: ${props.room["usuarios"][usr]["columnas"]}`)
-      console.log(`CANASTA: ${props.room["usuarios"][usr]["canasta"]}`)
       var columnas = "0"
       if(props.room["usuarios"][usr]["canasta"]){
         var columnas = props.room["usuarios"][usr]["canasta"].toString()

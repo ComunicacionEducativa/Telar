@@ -100,10 +100,6 @@ function comenzarJuego(salaActual){
   	console.log(`La sala ${salaActual[`sala`]} requiere de un minimo de dos jugadores para poder iniciar un juego.`)
   	return; 
   }
-  if(salaActual["status"] == "activo"){
-  	console.log(`Ya se encuentra un juego en curso en la sala ${salaActual["sala"]}`)
-  	return;
-  }
 
   salaActual["status"] = "activo"
   //Instanciar las fichas al centro 

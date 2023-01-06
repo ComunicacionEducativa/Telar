@@ -11,10 +11,18 @@ body {
 }
 
 .header{
-    width:  80%;
+    width:  200px;
     margin:  20px auto;
     text-align: center;
     font-size: 2.5em;
+}
+
+.header img{
+  width:  50%;
+}
+
+.header:hover{
+  cursor: pointer;
 }
 
 h1{
@@ -42,9 +50,14 @@ code {
 }
 
 
+
 @media screen and (max-width:  1300px){
   body{
     padding: 2%;
+  }
+
+  h1{
+    display: none;
   }
 
   .header{

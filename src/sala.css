@@ -9,16 +9,18 @@ h1{
 
 .error{
   width:  90%;
-  margin:  auto;
+  margin: auto;
+  margin-top: 8%;
+  margin-bottom: -8%;
 }
 
-.ganador{
-  background-color: palegoldenrod;
-  outline:  5px dotted gold;
+.error img{
+  width: 5%;
 }
+
 
 .botones-y-jugador{
-  width: 40%;
+  width: 45%;
   display: block;
   text-align: center;
   margin: auto;
@@ -43,6 +45,7 @@ h1{
 	border: none;
 	width: 100%;
 	height: 40px;
+  font-size: 25px;
 }
 
 #comenzarBtn button:hover{
@@ -51,6 +54,9 @@ h1{
 }
 
 
+
+
+/*COSAS DEL JUEGO */
 .jugador{
   display:  inline;
   width:  100%;
@@ -86,6 +92,7 @@ h1{
   width: 200px;
   width:  90%;
   margin:  auto;
+  cursor: pointer;
 }
 
 .tablero{
@@ -141,9 +148,15 @@ h1{
 }
 
 
-
 .telarsquare{
 	background-image:  url('./Assets/trama.png');
+}
+
+.valido{
+  background-color: palegoldenrod;
+  opacity:  50%;
+  outline:  2px solid darkgoldenrod;
+  cursor: pointer;
 }
 
 
@@ -169,6 +182,10 @@ CANASTA*/
   flex-wrap:  wrap;
 }
 
+.canasta .ficha{
+  cursor: pointer;
+}
+
 .basura .fichas{
   padding:  5%;
 }
@@ -186,12 +203,22 @@ CANASTA*/
   border-radius:  90px;
 }
 
+.ganador{
+  width: 550px;
+  border-radius:  90px;
+  background-color: palegoldenrod;
+  outline:  5px dotted gold;
+}
+
 .botones button{
   background-color: white;
   border-radius: 0px 0px 20px 20px;
   border:  solid 3px palegoldenrod;
   border-top: none;
   outline: none;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 15px;
 }
 
 .botones button:hover{
@@ -215,7 +242,7 @@ ol li{
   padding-left: 15px;
 }
 
-@media screen and (min-width: 591px) and (max-width: 1568px){
+@media screen and (min-width: 738px) and (max-width: 1568px){
   .botones-y-jugador{
     width: 660px;
     text-align: center;
@@ -227,23 +254,39 @@ ol li{
 
   .jugador-actual{
     height: 460px;
+    margin-top: 20px;
   }
+
+  .error{
+    font-size: 15px;
+    margin-top:4%;
+    margin-bottom: -8%;
+  }
+
+  .ganador .jugador{ 
+    border-bottom: 0px dashed goldenrod;
+   }
+
+  .ganador { 
+    padding-bottom: 90px;
+   }
 
 }
 
 
-@media screen and (max-width:  590px){
+@media screen and (max-width:  737px){
   h1{
     font-size: 15px;
   }
 
   .sala{
     width: 100%;
-    padding: 0px;
+    margin-top: 50px;
   }
 
 
   .botones-y-jugador{
+
     padding-top: 50px;
     width: 100%;
     text-align: center;
@@ -263,6 +306,7 @@ ol li{
   .jugador-actual{
     width: 100%;
     height: 100%;
+    margin-top: 20px;
   }
 
 
@@ -300,7 +344,21 @@ ol li{
   .botones button{
     height:  50px;
     width:  100px;
+    padding: 3px;
+    font-size: 15px;
+  }
+  .error {
+    font-size: 10px;
+    margin-top: 3%;
+    margin-bottom: -4%;
   }
 
+    .ganador .jugador{ 
+    border-bottom: 0px dashed goldenrod;
+   }
+
+  .ganador { 
+    padding-bottom: 90px;
+   }
 
 } 

@@ -10,6 +10,7 @@ a{
 .opcion{
     background-color: lightsalmon;
     text-align: center;
+    width: 100%;
     margin:  5px;
 }
 
@@ -67,9 +68,6 @@ a{
     opacity: 0;
 }
 
-.menu .submenu a:hover{
-    padding-left: calc(1rem + 5px);
-}
 
 .menu .submenu a:hover::before{
     opacity: 1;
@@ -93,7 +91,21 @@ a{
 }
 
 .opcion:target .submenu{
-    max-height: 300rem;
+    max-height: 600rem;
     padding:  20px;
     border-bottom: solid lightsalmon 10px;
+}
+
+.boton{
+  margin: 10px auto;
+  width: 150px;
+    background:  darkgrey;
+    padding:  5px;
+    color:  white;
+  height: 25px;
+}
+
+a.boton:hover{
+    background:grey;
+    padding: 5px;
 }

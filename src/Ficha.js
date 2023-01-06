@@ -1,30 +1,18 @@
-import {DndProvider, useDrag, useDrop} from 'react-dnd'
 import imagenes_fichas from './Assets/imagenes.js'
 
-const ItemTypes = {
-  FICHA: 'Ficha'
-}
 
-function sacarImagen(color, simbolo){
-  return imagenes_fichas.imagenes_fichas["otomi"][color][simbolo]
+function sacarImagen(color, simbolo, pueblo){
+  return imagenes_fichas.imagenes_fichas[pueblo][color][simbolo]
 }
 
 function Ficha(props){
-  const[{isDragging}, drag] = useDrag(() => ({
-    type: ItemTypes.FICHA,
-    item: () => props.onclick(),
-    collect: monitor => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }))
 
   return(
     <div
-      ref = {drag} 
       className="ficha"
-      style={{opacity: isDragging? 0.5: 1}, props.style}
+      style={props.style}
       onClick = {props.onclick}>
-      <img src={sacarImagen(props.color, props.simbolo)} />
+      <img src={sacarImagen(props.color, props.simbolo, props.pueblo)} alt={props.simbolo +", " +props.color}/>
     </div>
   )
 }
