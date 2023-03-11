@@ -1,8 +1,12 @@
 {
   "files": {
-    "main.css": "/Telar/static/css/main.f8f8d774.css",
-    "main.js": "/Telar/static/js/main.e473a9a5.js",
+    "main.css": "/Telar/static/css/main.edc422a5.css",
+    "main.js": "/Telar/static/js/main.89f197fc.js",
     "static/js/787.15c391a9.chunk.js": "/Telar/static/js/787.15c391a9.chunk.js",
+    "static/media/Tzotzil.pdf": "/Telar/static/media/Tzotzil.9d0660f424cb3061390d.pdf",
+    "static/media/Nahua.pdf": "/Telar/static/media/Nahua.dbda0c37162ea0b93312.pdf",
+    "static/media/Raramuri.pdf": "/Telar/static/media/Raramuri.cfce9ab2381da3865ddc.pdf",
+    "static/media/Otomi.pdf": "/Telar/static/media/Otomi.a01ba0814fef234cd532.pdf",
     "static/media/instrucciones_digital5_2.png": "/Telar/static/media/instrucciones_digital5_2.f9fb25e4470e03c8bd1a.png",
     "static/media/telar de cintura.png": "/Telar/static/media/telar de cintura.c2c7efccb6e06f7fdf1a.png",
     "static/media/instrucciones_digital2.png": "/Telar/static/media/instrucciones_digital2.87dc77dae3447c21158a.png",
@@ -64,12 +68,12 @@
     "static/media/enjulio_bajo.png": "/Telar/static/media/enjulio_bajo.ce28d830edcb247a748c.png",
     "static/media/enjulio_sup_2.png": "/Telar/static/media/enjulio_sup_2.961e559c5d618c4996ef.png",
     "index.html": "/Telar/index.html",
-    "main.f8f8d774.css.map": "/Telar/static/css/main.f8f8d774.css.map",
-    "main.e473a9a5.js.map": "/Telar/static/js/main.e473a9a5.js.map",
+    "main.edc422a5.css.map": "/Telar/static/css/main.edc422a5.css.map",
+    "main.89f197fc.js.map": "/Telar/static/js/main.89f197fc.js.map",
     "787.15c391a9.chunk.js.map": "/Telar/static/js/787.15c391a9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f8f8d774.css",
-    "static/js/main.e473a9a5.js"
+    "static/css/main.edc422a5.css",
+    "static/js/main.89f197fc.js"
   ]
 }
