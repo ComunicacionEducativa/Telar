@@ -147,6 +147,7 @@ import menu_raramuri3 from './raramuri/menu3.png'
 import menu_raramuri4 from './raramuri/menu4.png'
 
 
+
 const imagenes_fichas = {
   otomi: {
     azul: [otomi_azul1, otomi_azul2, otomi_azul3, otomi_azul4, otomi_azul5],
@@ -229,5 +230,5 @@ export default {
   imagenes_informacion, 
   imagenes_tutorial,
   header, 
-  iconos_menu
+  iconos_menu,
 };
