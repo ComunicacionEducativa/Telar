@@ -2,9 +2,9 @@ const fs = require('./funcionesServidor.js');
 
 
 const fichas =fs.crearFichas();
-var VERBOSE=true
+var VERBOSE= false; //Poner en true para ver los logs
 
-//Funciones para la puntuacion del juego
+//Regresa la fila con el indice idx, en un solo array
 function sacarFila(arr, idx){
 	const ret = []
 	for(const fil in arr){
@@ -13,6 +13,9 @@ function sacarFila(arr, idx){
 	return ret
 }
 
+
+//Calcula el numero de fichas dentro de una fila/columna 
+//que acuerdan con el subconjunto de la ficha que se coloco. 
 function lensubconjunto(arr, ficha){
 	var subconjunto = fs.clonar(ficha)
 	var subconjuntolen = 0 
@@ -28,6 +31,7 @@ function lensubconjunto(arr, ficha){
 				subconjuntolen += 1
 				subconjunto = [fichaComp["patron"]]
 			} else {
+				//En cuanto nos topemos con una ficha que no acuerda, dejamos de contar 
 				break
 			}
 		} else {
@@ -37,12 +41,20 @@ function lensubconjunto(arr, ficha){
 	return [subconjuntolen, subconjunto]
 }
 
+
+//Calcula cuales subconjuntos verticales existen segun las 
+//fichas que fueron bajadas (aquellas que se encuentran en
+// las "posiciones"). 
 function subconjuntosVerticales(tablero, posiciones){
+	//Dentro de cada fila en "subconjuntos" se colocara un tuple que representa
+	//El indice de inicio y el indice final del subconjunto. 
 	var subconjuntos = [[], [], [], [], []]
 	for(const idx in posiciones){
 		var pos = posiciones[idx]
+		// todas las fichas que se han colocado en esta columna, incluyendo la que se acaba de bajar
 		var tab = tablero[pos[0]].slice(0, pos[1])
 		const ficha = fichas[tablero[pos[0]][pos[1]]]
+		// Se pone al reves para que empezemos a contar desde la ficha que se acaba de bajar
 		tab.reverse()
 		const subconjunto = lensubconjunto(tab, [ficha["color"], ficha["patron"]])[0]
 		if(subconjunto){
@@ -53,9 +65,16 @@ function subconjuntosVerticales(tablero, posiciones){
 }
 
 
-//TODO: CAREFULLY EXAMINE + REFACTOR THIS SPAGHETTI CODE
-
+//Calcula cuales subconjuntos horizontales existen segun las 
+//fichas que fueron bajadas (aquellas que se encuentran en
+// las "posiciones"). 
 function subconjuntosHorizontales(tablero, posiciones){
+	// Dentro de cada fila en "subconjuntos" se colocaran varios tuples, cada uno 
+	// consiste en la posicion de inicio y la posicion final de cada subconjunto en esa fila
+	// que incluya una ficha que se acaba de bajar. Por ejemplo, 
+	// si la segunda fila del tablero contiene fichas asi: 
+	// Rojo, rojo, azul, azul, azul 
+	// subconjuntos[1] = [[0, 1], [2, 4]]
 	var subconjuntos = [[], [], [], [], []]
 	for(const idx in posiciones){
 		var pos = posiciones[idx] 
@@ -64,25 +83,33 @@ function subconjuntosHorizontales(tablero, posiciones){
 		for(const sc in subconjuntos[pos[1]]){
 			if(subconjuntos[pos[1]][sc][0] <= pos[0]
 				&& subconjuntos[pos[1]][sc][1] >= pos[0]){
+				// Si la ficha en esta posicion forma parte de 
+				// un subconjunto que ya calculamos, no hay porque
+				// volver a calcularlo 
 				visitado = true
 				break
 			}
 		}
+		const ficha = fichas[tablero[pos[0]][pos[1]]]
+		var lenSubconjIzq = [0, []]
 		if(!visitado){
-			const ficha = fichas[tablero[pos[0]][pos[1]]]
+			//Calculamos cuantas fichas a la izquierda acuerdan con la ficha que se acaba de bajar
 			const tableroIzq = fila.slice(0, pos[0])
 			tableroIzq.reverse()
-			var lenSubconjIzq = lensubconjunto(tableroIzq, [ficha["color"], ficha["patron"]])
+			lenSubconjIzq = lensubconjunto(tableroIzq, [ficha["color"], ficha["patron"]])
 			if(lenSubconjIzq[0]){
 				subconjuntos[pos[1]].push([pos[0] - lenSubconjIzq[0], pos[0]])
 			}
-			// Lado derecho
+		} 
+			//Calculamos cuantas fichas a la derecha acuerdan con la ficha que se acaba de bajar
 			var derecho = []
 			const tableroDer = fila.slice(pos[0]+1, fila.length)
-			if(pos[0] != tablero[0].length - 1){
+			if(pos[0] !== tablero[0].length - 1){ //Si no es la ultima ficha en la fila
 				var adjacent = fichas[tablero[pos[0]+1][pos[1]]]
 				if (adjacent){
 					if(lenSubconjIzq[1].includes(adjacent["color"]) || lenSubconjIzq[1].includes(adjacent["patron"])) {
+						//En este caso, las fichas del lado izquierdo y del lado derecho de la ficha que se acaba de
+						//colocar forman parte del mismo subconjunto 
 						derecho = lenSubconjIzq[1]
 						var subconjuntoDer = lensubconjunto(tableroDer, derecho)[0]
 						if(subconjuntoDer){
@@ -93,9 +120,11 @@ function subconjuntosHorizontales(tablero, posiciones){
 							}
 						}
 					} else {
-						var derecho = [ficha["color"], ficha["patron"]]
+						//En este caso, las fichas del lado izquierdo y del lado derecho de la ficha que se acaba de
+						//colocar no forman parte del mismo subconjunto 
+						derecho = [ficha["color"], ficha["patron"]]
 						if(derecho.includes(adjacent["color"]) || derecho.includes(adjacent["patron"])) {
-							var subconjuntoDer = lensubconjunto(tableroDer, derecho)[0]
+							subconjuntoDer = lensubconjunto(tableroDer, derecho)[0]
 							if(subconjuntoDer){
 								subconjuntos[pos[1]].push([pos[0], pos[0] + lensubconjunto(tableroDer, derecho)[0]])
 							}
@@ -103,7 +132,6 @@ function subconjuntosHorizontales(tablero, posiciones){
 					}
 				}
 			}
-		}
 	}
 	return subconjuntos
 }
@@ -126,7 +154,7 @@ function bajarFichas(tablero, posiciones){
 
 
 
-
+//Calcula los puntos si se bajan las fichas segun los indices en "posiciones"
 function calcularPuntos(jugador, posiciones, basura){
 	var subconjuntos = [[], []]
 	var puntuacionV = 0
@@ -138,10 +166,10 @@ function calcularPuntos(jugador, posiciones, basura){
 		}
 	}
 	subconjuntos[1] = subconjuntosHorizontales(jugador["tablero"], posiciones)
-	for(var sc in subconjuntos[1]){
-		for(var ssc in subconjuntos[1][sc]){
-			if(subconjuntos[1][sc][ssc].length){
-				puntuacionH += 1 + subconjuntos[1][sc][ssc][1] - subconjuntos[1][sc][ssc][0]
+	for(var sco in subconjuntos[1]){
+		for(var ssc in subconjuntos[1][sco]){
+			if(subconjuntos[1][sco][ssc].length){
+				puntuacionH += 1 + subconjuntos[1][sco][ssc][1] - subconjuntos[1][sco][ssc][0]
 			}
 		}
 	}
@@ -151,7 +179,9 @@ function calcularPuntos(jugador, posiciones, basura){
 
 
 
-
+//Esta mega-funcion basicamente solo baja las fichas, calcula segun cuales 
+//fueron bajadas cuales subconjuntos se crearon, y saca la puntuacion de 
+//la jugada 
 function bajarFichasYSacarPuntuacion(salaActual, state, socket = ""){
 	if(VERBOSE){
 		console.log("Bajando las fichas en la sala. Usuarios en la sala:")
@@ -161,21 +191,24 @@ function bajarFichasYSacarPuntuacion(salaActual, state, socket = ""){
 			console.log(`CANASTA: ${salaActual["usuarios"][u]["canasta"]}`)
 		}
 	}
+	//"primerTurno" es una variable que usaba cuando existia la posibilidad de un juego multiplayer, 
+	//se puede ignorar.
 	if(!salaActual["primerTurno"] || salaActual["local"]){ //como primerTurno solo es para prevenir requests multiples, siempre es falso en salas locales
   			salaActual["primerTurno"] = false;
 
   			//Manejo de cada usuario en la sala 
 	  		for(const u in salaActual["usuarios"]){
 	  			var usuarioActual = salaActual["usuarios"][u]
-	  			if(usuarioActual["usuario"] == socket.id || (usuarioActual["usuario"] == salaActual["turno"] && salaActual["local"])){
+	  			//Si es el turno de este usuario, se tiene que manualmente actualizar su estado
+	  			if(usuarioActual["usuario"] === socket.id || (usuarioActual["usuario"] === salaActual["turno"] && salaActual["local"])){
 			  		usuarioActual["canasta"] = []
 			  		usuarioActual["columnas"] = state["cols"]
 			  		usuarioActual["basura"] = state["basura"]
 	  			}
 
-	  			// Bajar fichas y sacar puntuacion
 	  			var fichasBajadas = []
 	  			var nuevoTablero = fs.clonar(usuarioActual["tablero"])
+	  			//Bajamos las fichas
 	  			for(const c in usuarioActual["columnas"]){
 	  				var colActual = usuarioActual["columnas"][c]
 	  				if(colActual[colActual.length - 1] != null){ //si esta llena la columna
@@ -188,7 +221,6 @@ function bajarFichasYSacarPuntuacion(salaActual, state, socket = ""){
 									nuevoTablero[c][f] = colActual[0]
 									fichasBajadas.push([parseInt(c), parseInt(f)])
 									if(f == nuevoTablero[c].length-1){
-										console.log("ES EL FINAL DEL JUEGO")
 		  								salaActual["status"] = "final" // Es el final del juego
 									}
 									break
@@ -196,6 +228,7 @@ function bajarFichasYSacarPuntuacion(salaActual, state, socket = ""){
 		  				}
 		  			} 
 	  			}
+	  			//Sacamos la puntuacion 
 	  			usuarioActual["tablero"] = nuevoTablero
 	  			const puntos = calcularPuntos(usuarioActual, fichasBajadas, usuarioActual["basura"].length)
 	  			usuarioActual["puntuacion"][0] += puntos[0]
@@ -203,10 +236,13 @@ function bajarFichasYSacarPuntuacion(salaActual, state, socket = ""){
 	  			salaActual["fichasCentro"] = salaActual["fichasCentro"].concat(usuarioActual["basura"])
 	  			usuarioActual["basura"] = []
 	  		}
+
+	  		//Vamos a la siguiente ronda, si es que no es el final del juego
 		  		salaActual["ronda"] += 1
 		  		var primerJugador = salaActual["ronda"]%salaActual["usuarios"].length
 			  	salaActual["turno"] = salaActual["usuarios"][primerJugador]["usuario"]
-			  	if(salaActual["status"] != "final"){
+			  	//Distribuimos las fichas 
+			  	if(salaActual["status"] !== "final"){
 			  		if(VERBOSE){
 			  			console.log("Distribuyendo fichas. Canastas antes de distribuir:")
 			  			for(const u in salaActual["usuarios"]){

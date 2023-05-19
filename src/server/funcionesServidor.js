@@ -1,17 +1,14 @@
-
-
 var colores = ["rojo", "verde", "azul", "blanco", "negro"]
 var simbolos = [0, 1, 2, 3, 4];
-const USUARIOS_MAX = 4;
 const USUARIOS_MIN = 1;
 const FICHAS = crearFichas();
-const VERBOSE = true;
+const VERBOSE = false; //Para poner errores, etc en el log 
 
 
+//Instanciar el centro de fichas
 function crearFichas(){
 	var fichaId = 0;
 	var fichas = [];
-  	//Instanciar el centro de fichas 
   	for(let x = 0; x< 5; x++) {
 	  	for(const clr in colores){
 	  		for(const sim in simbolos){
@@ -27,11 +24,14 @@ function crearFichas(){
 	return fichas;
 }
 
+
+//Para clonar un array 
 function clonar(arr){
     return arr.map(x => Array.isArray(x) ? clonar(x) : x)
   }
 
 
+//Crear un tablero sin fichas 
 function nuevoTablero(tamano = 5){
 	var tablero = []
   for(var i = 0; i < tamano; i++){ 
@@ -51,6 +51,7 @@ function nuevoTablero(tamano = 5){
 				  	puntuacion: [0, []]}
   }
 
+//Se ha creado una nueva sala 
 function nuevaSala(usuarioId, nombre, pueblo = "otomi", esLocal = false){
   	return {
   		usuarios: [nuevoJugador(usuarioId)], 
@@ -67,6 +68,8 @@ function nuevaSala(usuarioId, nombre, pueblo = "otomi", esLocal = false){
   	}
   }
 
+// Dado un array de indices, y un diccionario que incluye cada ficha,
+// Regresa un array de fichas que se encuentran en cada indice. 
 function indexesToFichas(arr, fichasDict){
 	var newArr = []
 	for (const f in arr){
@@ -75,17 +78,21 @@ function indexesToFichas(arr, fichasDict){
 	return newArr
 }
 
+// Se distribuyen las fichas segun las que quedan en el juego, 
+// se otorgan 6 al primer jugador y 3 a los demas. 
 function distribuirFichas(salaActual, primerJugador){
 	var idx = 0;
 	for(var y = 0; y < salaActual["usuarios"].length; y++){
-		if(y == primerJugador){
+		if(y === primerJugador){
 			for(let x = 0; x < 6; x++){
 				idx = Math.floor(Math.random() * salaActual["fichasCentro"].length)
-				salaActual["usuarios"][primerJugador]["canasta"].push(salaActual["fichasCentro"].splice(idx, 1)[0]);
+				//Se saca la ficha de las fichas del juego y se coloca en la canasta del jugador. 
+				salaActual["usuarios"][primerJugador]["canasta"].push(salaActual["fichasCentro"].splice(idx, 1)[0]); 
 			}
 		} else {
 			for (let x = 0; x < 3; x++) {
 	  		idx = Math.floor(Math.random() * salaActual["fichasCentro"].length);
+	  		//Se saca la ficha de las fichas del juego y se coloca en la canasta del jugador. 
 	  		salaActual["usuarios"][y]["canasta"].push(salaActual["fichasCentro"].splice(idx, 1)[0]);
 			}
 		}
@@ -93,11 +100,16 @@ function distribuirFichas(salaActual, primerJugador){
 }
 
 
+//Para comenzar el juego 
 function comenzarJuego(salaActual){
-	console.log(salaActual)
+	if(VERBOSE){
+		console.log(salaActual)
+	}
   salaActual["fichas"] = FICHAS
   if(salaActual["usuarios"].length < USUARIOS_MIN){ 
-  	console.log(`La sala ${salaActual[`sala`]} requiere de un minimo de dos jugadores para poder iniciar un juego.`)
+  	if(VERBOSE){
+	  	console.error(`La sala ${salaActual[`sala`]} requiere de un minimo de dos jugadores para poder iniciar un juego.`)
+	  }
   	return; 
   }
 

@@ -7,6 +7,8 @@ a{
     text-decoration: none;
 }
 
+/*CSS para las opciones del menu de 
+inicio */
 .opcion{
     background-color: lightsalmon;
     text-align: center;
@@ -97,7 +99,7 @@ a{
 }
 
 .boton{
-  margin: 10px auto;
+  margin: 15px;
   width: 150px;
     background:  darkgrey;
     padding:  5px;

@@ -1,7 +1,11 @@
 import React from 'react';
 import ItemTypes from './ItemTypes'
 
-//TODO: FIND A WAY TO MAKE THESE IMPORTS BETTER
+/***************************
+ * Las imagenes/los iconos *
+ * del tablero, donde se   *
+ * colocan las fichas      *
+ * *************************/
 import v2_i from './Assets/vara1_izq.png';
 import v02 from './Assets/vara1_5.png';
 import v12 from './Assets/vara1_4.png';
@@ -30,7 +34,7 @@ import e_d from './Assets/enjulio_bajo_der.png';
 
 const TAMANO_SQUARE = 40;
 
-
+//Una posicion en el telar, en la parte inferior
 function Square(props) {
   return (
     <div className="square telarsquare" style = {props.style}>
@@ -40,8 +44,9 @@ function Square(props) {
   );
 }
 
-
+//Una posicion en la parte superior del telar
 function ColSquare(props) {
+  //"valido" solo si se puede colocar una ficha en aquella posicion 
   var classname = props.valido ? "square col-square valido" :"square col-square" 
   return (
     <div style={{backgroundImage: `url(${props.image})`}} className={classname} onClick = {props.onclick}>
@@ -51,17 +56,22 @@ function ColSquare(props) {
 };
 
 
+//El div que se~nala los subconjuntos que fueron bajados en la ronda 
+//pasada 
 function Subconjunto(props){
   return(
     <div className="subconjunto" style={{width:props.width, height:props.height, left:props.left, bottom:props.bottom}}></div>
   );
 }
 
-//Boards for each individual player 
+/***************************
+ **** El tablero     *******
+ ***************************/
 class Tablero extends React.Component {
   constructor(props) {
     super(props);
   }
+
 
   renderSquare(i) {
     if(this.props.tableroFichas){
@@ -70,7 +80,7 @@ class Tablero extends React.Component {
             value={this.props.tableroFichas[i]}
           />
         );
-    } else {
+    } else { //En este caso, solo se ve el hilo del telar
       return (
         <Square
           value={null}
@@ -85,7 +95,6 @@ class Tablero extends React.Component {
         value={this.props.cols[col][fil]}
         valido = {this.props.opacities[col][fil]}
         onclick = {() => this.fichaEnColumna(col, this.props.ficha)}
-        ondrop = {(f) => this.dndFichaEnColumna(col, f)}
         image = {img}
       />
     );
@@ -95,10 +104,8 @@ class Tablero extends React.Component {
     this.props.ponerFicha(col, ficha)
   }
 
-  dndFichaEnColumna(col, ficha){
-    this.props.dndFicha(col, ficha)
-  }
-
+  //Este codigo crea los divs que aparecen sobre los subconjuntos que se crearon
+  //la ronda anterior 
   sacarPuntuacion(){
     var puntos = Array()
     if(this.props.puntuacion){
@@ -123,7 +130,7 @@ class Tablero extends React.Component {
   }
 
   render() {
-    //todo: there's gotta be a better way than this 
+    //El html/JSX del tablero
     return (
       <div className="tablero">
         {this.sacarPuntuacion()}

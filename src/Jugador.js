@@ -1,22 +1,13 @@
-import { io } from 'socket.io-client';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './jugador.css';
 import Tablero from './Tablero'
 import Ficha from './Ficha'
 import imagenes_fichas from './Assets/imagenes.js'
 
-//todo (less urgent) lots of refactoring, see if I can eliminate a lot of the
-// "mirroring" going on in componentdidupdate, why dont i just use props 
-// from the source? 
 
-//TODO WHEN REFACTORING: Instead of having a text field that users can input anything into,
-// have the game generate a random hex code you can send to your friends, and limit
-// number of characters they can enter into the enter nbox 
+//si VERBOSE=true, se imprimen los logs 
+var VERBOSE = false;
 
-//TODO (extreeeeemely low priority): spectator mode
-
-
+//JSX/HTML de la Canasta
 function Canasta(props){
   return(
     <div className="canasta"> 
@@ -27,6 +18,8 @@ function Canasta(props){
   )
 }
 
+
+//JSX/HTML de la Basura
 function Basura(props){
   return(
     <div className="basura" onClick = {() => props.tirarFicha(props.ficha)}>
@@ -37,13 +30,14 @@ function Basura(props){
   )
 }
 
-
-// Will store information on currently selected subset, eventually 
-// also player order
-
+//////////////////
+/// EL JUGADOR //
+/////////////////
 class Jugador extends React.Component{
   constructor(props) {
-    console.log("Construyendo el jugador ...")
+    if(VERBOSE){
+      console.log("Construyendo el jugador ...")
+    }
     super(props);
 
     //Canasta 
@@ -60,6 +54,7 @@ class Jugador extends React.Component{
     columnas[3] = Array(2).fill(null)
     columnas[4] = Array(3).fill(null)
 
+    //Informacion acerca de las opacities de las fichas (para la interfaz de usuario)
     const ops = Array(5)
     ops[0] = Array(3).fill(false)
     ops[1] = Array(2).fill(false)
@@ -75,53 +70,15 @@ class Jugador extends React.Component{
       cols: columnas,
       opacities: ops,
       error: "",
-      subset: [], // Si concuerda con cualquier cosa en el subconjunto
+      subset: [], 
     }
 
   }
 
-  borrarOps(){
-    const ops = Array(5)
-    ops[0] = Array(3).fill(false)
-    ops[1] = Array(2).fill(false)
-    ops[2] = Array(1).fill(false)
-    ops[3] = Array(2).fill(false)
-    ops[4] = Array(3).fill(false)
-    this.setState({opacities: ops})
-  }
-
-  hacerJugada(){
-    const usuario = this.props.sala["usuarios"][this.props.jugador]["usuario"]
-    this.borrarOps()
-
-    if(this.state.fichasEnCanasta.length){
-      console.log("Jugador haciendo jugada ...")
-      this.props.hacerJugada(this.state)
-    } else { // Si no quedan fichas en canasta pero el otro si tiene 
-      for(const u in this.props.sala["usuarios"]){
-        if(this.props.sala["usuarios"][u]["usuario"] != usuario && this.props.sala["usuarios"][u]["canasta"].length){
-          console.log("Jugador haciendo jugada ...")
-          this.props.hacerJugada(this.state)
-          return 
-        }
-      }
-      this.props.acabarRonda(this.state)
-      console.log("Se acabo la ronda ... ")
-    }
-  }
-
-  //TODO: Refactor this, get it out of here
-  //TODO: REALLY WORRIED ABOUT WHAT HAPPENS SI UN JUGADOR ACABA CON LAS FICHAS
-  //EN SU CANASTA EN LA PRIMERA RONDA, PERO AUN HAY FICHAS EN OTRAS CANASTAS!
-  //PROBABLEMENTE SE SOLUCIONE CON UN "PLAYER TURN" 
-  //TODO: RERENDERING TABLERO EVEN WHEN I DON'T HAVE TO,
-  //TODO: make this respond to GAME TURN not to FICHAS CHANGE 
+  //Cada vez que hay un cambio en la sala, es decir cada vez que se hace una jugada, se requiere
+  //esta funcion para que TODOS los jugadores se actualizen al estado actual del juego. 
   componentDidUpdate(prevProps){
     if(this.props !== prevProps){
-      console.log(`Se detecto un cambio en la sala para el jugador ${this.props.jugador}. Sala anterior:`)
-      console.log(prevProps.sala)
-      console.log("Sala nueva:")
-      console.log(this.props.sala)
       const jugador = this.props.sala["usuarios"][this.props.jugador]
       const enCanasta = []
       for(const ficha in jugador["canasta"]){
@@ -147,6 +104,16 @@ class Jugador extends React.Component{
     }
   }
 
+
+  /////////////////////////////////////////////
+  //////////// FUNCIONES BASICAS //////////////
+  // Estas funciones sirven para apoyar las ///
+  // demas funciones, y no representan en si///
+  // las acciones del jugador.               //
+  /////////////////////////////////////////////
+
+  //Esta funcion basicamente solo regresa o True o False dependiendo si la 
+  //ficha cabe dentro de un subconjunto 
   acuerda(ficha, subset = this.state.subset){
     return(subset.includes(ficha["patron"]) || subset.includes(ficha["color"]));
   }
@@ -156,9 +123,25 @@ class Jugador extends React.Component{
     return arr.map(x => Array.isArray(x) ? this.clonar(x) : x)
   }
 
-  //Sacar el subconjunto de una columna
+  // Regresa todas las fichas en la canasta que acuerdan con un subconjunto (se llama
+  // dentro del codigo para tirar fichas)
+  fichasEnSubconjunto(sj){
+    var ctr =[]
+    for(const f in this.state.fichasEnCanasta){
+      if(this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"]=== sj || this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"]=== sj){
+        ctr.push(this.state.fichasEnCanasta[f])
+      }
+    }
+    return ctr
+  }
+
+  //Sacar el subconjunto de una columna, o sea cuales fichas posiblemente podrian
+  //caber dentro de ella. Regresa una array vacia si no caben mas fichas, o si
+  //la columna esta vacia
   getSubset(col){
-    var fichasKey = this.props.sala["fichas"]
+    //Cada ficha tiene un indice, "fichasKey[indice]" regresa una representacion
+    //de la ficha que tiene tal indice
+    var fichasKey = this.props.sala["fichas"] 
     if(col[0]!==null){
       var subset = [fichasKey[col[0]]["color"], fichasKey[col[0]]["patron"]]
       for(const f in col){
@@ -170,7 +153,9 @@ class Jugador extends React.Component{
           } else if (subset.includes(fichasKey[col[f]]["patron"] )) { 
             subset = [fichasKey[col[f]]["patron"]]
           } else { // No deberia occurrir
-            console.error(`Columna ${col} no fue construida bien`)
+            if(VERBOSE){
+              console.error(`Columna ${col} no fue construida bien`)
+            }
             return []
           }
         } else {
@@ -179,138 +164,19 @@ class Jugador extends React.Component{
       }
       return [] //Esta llena la columna 
     } else {
-      return []
+      return [] //Esta completamente vacia la columna
     }
   }
 
-  ponerFicha(col, ficha){
-    if (ficha){
-      //Probablemente seria mejor tener un state con el subconjunto actual
-      // de cada columna pero va ser dificil manejarlo por >1 ronda y los subconjuntos 
-      //son peque~nos asi que mejor calcularlo cada vez
-      if(this.state.cols[col][0] == null || this.acuerda(ficha, this.getSubset(this.state.cols[col]))){
-        const len = this.state.cols[col].length
-        const newCol = this.clonar(this.state.cols)
-        const newCanasta = this.state.fichasEnCanasta.slice()
-        let fil = 0
-        while(fil < len && this.state.cols[col][fil]!==null){
-          fil++
-        }
-        if(fil == len){ // Esta llena la columna
-          console.log("Esta llena la columna, no se pudo colocar la ficha")
-          this.setState({error:<p>Esta llena la columna, no se pudo colocar la ficha</p>})
-        } else {
-          const idx = this.props.sala["fichas"].findIndex(x => x === ficha)
-          console.log(`Colocando en columna ${col} en posicion ${fil}, columna actual: ${this.state.cols[col]} `)
-          newCol[col][fil] = idx
-          this.borrarOps() //Quitar las cosas senalando las jugadas posibles
-          newCanasta.splice(this.state.fichasEnCanasta.findIndex(x => x == idx), 1)
-        }
-        this.setState({
-          fichaElegida: null,
-          cols: newCol,
-          fichasEnCanasta: newCanasta,
-          error: ""
-        })
-      } else {
-        console.log("Ficha no acuerda con columna o columna esta llena")
-        this.setState({error:<div class = "error"><p>No se pudo colocar la ficha - la ficha debe acordar con el patron o color del resto de las fichas en la columna, y la columna no puede estar llena.</p></div>})
-      }
-    } else {
-      console.log("No se selecciono una ficha")
-    }
-  }
-
-  sacarSubconjunto(sj){
-    var ctr =[]
-    for(const f in this.state.fichasEnCanasta){
-      if(this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"]== sj || this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"]== sj){
-        ctr.push(this.state.fichasEnCanasta[f])
-      }
-    }
-    return ctr
-  }
-
-  tirarFichaRecurs(canasta, columnas, subconj){
-    var jugada
-    console.log(canasta)
-    console.log(columnas)
-    if(canasta.length == 0){
-      return []
-    } else {
-      for(const f in canasta){
-        for(const col in columnas){
-          if(columnas[col][0] == null || this.acuerda(this.props.sala["fichas"][canasta[f]], this.getSubset(columnas[col]))) {
-            const len = columnas[col].length
-            const newCol = this.clonar(columnas)
-            const newCanasta = canasta.slice()
-            let fil = 0
-            while(fil < len && columnas[col][fil]!==null){
-              fil++
-            }
-            if(fil != len){ 
-              newCol[col][fil] = canasta[f]
-              newCanasta.splice(f, 1)
-            }
-            jugada = this.tirarFichaRecurs(newCanasta, newCol, subconj)
-            // console.log(jugada)
-            if(jugada.length > 0){
-              if(jugada[0] != -1){
-                jugada.push(col)
-                return jugada
-              }
-            } else {
-              return [col]
-            }
-          }
-        }
-      }
-    }
-    return [-1]
-  }
-
-  tirarFicha(ficha){
-    if(ficha){
-      for(const f in this.state.fichasEnCanasta){
-        var subconj1 = this.sacarSubconjunto(this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"])
-        var jugada1 = this.tirarFichaRecurs(subconj1, this.state.cols, this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"])
-        var fichaImg = imagenes_fichas.imagenes_fichas[this.props.sala["pueblo"]][this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"]][this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"]]
-        console.log(fichaImg)
-        if(jugada1[0] != -1){
-          console.log(jugada1)
-          this.setState({error: <div class = "error"> <p>Aun existe una jugada posible.</p><p>Intenta colocar las fichas de este color: <img src={fichaImg}/></p></div>})
-          return 
-        } else {
-          var subconj2 = this.sacarSubconjunto(this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"])
-          var jugada2 = this.tirarFichaRecurs(subconj2, this.state.cols, this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"])
-          if(jugada2[0] != -1){
-            console.log(jugada2)
-             this.setState({error: <div class = "error"> <p>Aun existe una jugada posible.</p><p>Intenta colocar las fichas de este diseño: <img src={fichaImg}/></p></div>})
-            return 
-          }
-        }
-      }
-      var newBasura = this.clonar(this.state.basura);
-      const idx = this.props.sala["fichas"].findIndex(x => x === ficha)
-      newBasura.push(idx)
-      console.log(ficha)
-      console.log(newBasura)
-      var newCanasta = this.state.fichasEnCanasta.slice()
-      newCanasta.splice(this.state.fichasEnCanasta.findIndex(x => x == idx), 1)
-
-      this.setState({basura: newBasura, fichasEnCanasta: newCanasta, error: '', fichaElegida: null})
-    } else {
-      console.log("No se pudo tirar: no se selecciono una ficha")
-    }
-  }
-
-  // TODO (not urgent) solo bajar las que no acuerden 
-  // con el subset
-  // TODO: Que ocurre si en otro turno, el jugador logro poner algo en la 
-  // basura, y luego le pica a este boton? Siquiera es posible?
+  //Esta funcion quita las fichas ya colocadas sobre las columnas. Se 
+  //llama principalmente cuando el jugador hace clic en "deshacer" o 
+  //cuando selecciona un subconjunto diferente
   borrarColumnas(){
-    console.log("Borrando ....")
+    if(VERBOSE){
+      console.log("Borrando las columnas ...")
+    }
     const enCanasta = []
+    //La canasta regresa a su posicion de inicio 
     const misFichas = this.props.sala["usuarios"][this.props.jugador]["canasta"]
     for(const ficha in misFichas){
       enCanasta.push(misFichas[ficha])
@@ -341,15 +207,235 @@ class Jugador extends React.Component{
   }
 
 
-  //"Columnas" no se puede referir a this.state.cols porque aun no se ha hecho el re-render
-  mostrarColumnasPosibles(ficha, columnas){
-    if(columnas !== null){
-      var cols = this.clonar(columnas)
+  //////////////////////////////////////////////
+  //////////// FUNCIONES DEL JUEGO /////////////
+  // Estas funciones representan las acciones //
+  // del jugador, en general se llaman cuando //
+  // el jugador hace clic sobre un boton, etc //
+  //////////////////////////////////////////////
+
+  //Esta funcion se llama cada vez que el jugador elige una ficha dentro de su canasta
+  elegirSubconjunto(ficha){
+    this.setState({fichaElegida: ficha})
+    var subsetlen = this.state.subset.length
+    var columnas = null
+    if(VERBOSE){
+      console.log(`ficha seleccionada: ${ficha["color"]}, ${ficha["patron"]},  indice: ${ficha["id"]}`)
+    }
+    // Si no se ha eligido una ficha o si la ficha no acuerda con el subconjunto actual
+    if(subsetlen === 0 || !this.acuerda(ficha)){
+      if(VERBOSE){
+        console.log(`O no se eligio una ficha, o no acuerda!`)
+      }
+      if(!this.acuerda(ficha)){ 
+        columnas = this.borrarColumnas() // Si es que no acuerda, se quitan las fichas la colocadas
+      } 
+      this.setState({subset: [ficha["color"], ficha["patron"]]})
     } else {
-      var cols = this.clonar(this.state.cols)
+      if(subsetlen === 2){ 
+        if(this.state.subset.includes(ficha["patron"])){
+          if(!this.state.subset.includes(ficha["color"])){ //Si NO son identicas
+              this.setState({subset: [ficha["patron"]]})
+          }
+        } else { //Como concuerdan, no se tiene que checar si tienen el mismo color
+          this.setState({subset: [ficha["color"]]})
+        } 
+      } else if (subsetlen === 1){
+        this.mostrarColumnasPosibles(ficha, columnas);
+        return; //no hay nada mas que hacer
+      } else {
+        if(VERBOSE){
+          console.error(`ERROR App.js 184 - Un subconjunto debe tener maximo dos caracteristicas (un color, un patron). El subconjunto actual: ${this.state.subset}`);
+        }
+      }
+    }
+    this.mostrarColumnasPosibles(ficha, columnas);
+    return ficha
+  }
+
+  //Esta funcion es llamada cada vez que un jugador intenta colocar una ficha dentro de una columna. 
+  ponerFicha(col, ficha){
+    if (ficha){
+      //Si esta vacia la columna O si la ficha cabe dentro del subconjunto actual de la columna
+      if(this.state.cols[col][0] == null || this.acuerda(ficha, this.getSubset(this.state.cols[col]))){
+        const len = this.state.cols[col].length
+        const newCol = this.clonar(this.state.cols)
+        const newCanasta = this.state.fichasEnCanasta.slice()
+        let fil = 0
+        //Buscamos la posicion de la ficha
+        while(fil < len && this.state.cols[col][fil]!==null){
+          fil++
+        }
+        const idx = this.props.sala["fichas"].findIndex(x => x === ficha)
+        if(VERBOSE){
+          console.log(`Colocando en columna ${col} en posicion ${fil}, columna actual: ${this.state.cols[col]} `)
+        }
+        newCol[col][fil] = idx //Se coloca la ficha en la columna
+        this.borrarOps() //Se borra la interfaz de usuario
+        newCanasta.splice(this.state.fichasEnCanasta.findIndex(x => x === idx), 1) //Se quita la ficha de la canasta
+        this.setState({
+          fichaElegida: null,
+          cols: newCol,
+          fichasEnCanasta: newCanasta,
+          error: ""
+        })
+      } else {
+        this.setState({error:<div class = "error"><p>No se pudo colocar la ficha - la ficha debe acordar con el patron o color del resto de las fichas en la columna, y la columna no puede estar llena.</p></div>})
+      }
+    } else {
+      if(VERBOSE){
+        console.error("No se selecciono una ficha")
+      }
+    }
+  }
+
+  // La funcion recursiva que sirve para ver si es posible
+  // desechar una ficha. Si existe una jugada posible, 
+  // la funcion regresa una lista de las columnas donde 
+  // se deberian colocar fichas para hacer completar jugada. 
+  tirarFichaRecurs(canasta, columnas){
+    var jugada
+    if(canasta.length === 0){ 
+      return []
+    } else {
+      for(const f in canasta){
+        for(const col in columnas){
+          // Basicamente lo que esta ocurriendo aqui es que se esta intentando colocar 
+          // cualquier ficha posible dentro de las columnas, y luego se intenta de hacer una 
+          // jugada partiendo desde ahi. Si existe una jugada posible, entonces no es 
+          // posible desechar fichas. 
+          if(columnas[col][0] == null || this.acuerda(this.props.sala["fichas"][canasta[f]], this.getSubset(columnas[col]))) {
+            const len = columnas[col].length
+            const newCol = this.clonar(columnas)
+            const newCanasta = canasta.slice()
+            let fil = 0
+            while(fil < len && columnas[col][fil]!==null){
+              fil++
+            }
+            if(fil !== len){ 
+              newCol[col][fil] = canasta[f]
+              newCanasta.splice(f, 1)
+            }
+            jugada = this.tirarFichaRecurs(newCanasta, newCol)
+            if(jugada.length > 0){
+              if(jugada[0] !== -1){
+                jugada.push(col)
+                return jugada
+              }
+            } else {
+              //Este es el caso mas basico - la canasta contiene solo una 
+              //ficha, y esta ficha cabe dentro de la columna [col]
+              return [col]
+            }
+          }
+        }
+      }
+    }
+    return [-1]
+  }
+
+  // Cuando se intenta desechar una ficha 
+  tirarFicha(ficha){
+    if(ficha){
+      //Intentamos hacer una jugada con cada ficha que aun queda en la canasta 
+      for(const f in this.state.fichasEnCanasta){
+        // Un subconjunto de fichas del mismo color
+        var subconj1 = this.fichasEnSubconjunto(this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"])
+        var jugada1 = this.tirarFichaRecurs(subconj1, this.state.cols)
+        var fichaImg = imagenes_fichas.imagenes_fichas[this.props.sala["pueblo"]][this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"]][this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"]]
+        var color = this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["color"]
+        if(jugada1[0] !== -1){
+          this.setState({error: <div class = "error"> <p>Aun existe una jugada posible.</p><p>Intenta colocar las fichas de este color: <img src={fichaImg} alt={"Una ficha de color " + color}/></p></div>})
+          return 
+        } else {
+          // Un subconjunto de fichas del mismo patron - si no se puede hacer una jugada partiendo de un subconjunto de fichas 
+          // del mismo color
+          var subconj2 = this.fichasEnSubconjunto(this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"])
+          var jugada2 = this.tirarFichaRecurs(subconj2, this.state.cols)
+          var patron = this.props.sala["fichas"][this.state.fichasEnCanasta[f]]["patron"]
+          if(jugada2[0] !== -1){
+             this.setState({error: <div class = "error"> <p>Aun existe una jugada posible.</p><p>Intenta colocar las fichas de este diseño: <img src={fichaImg} alt ={"Una ficha de patron " + patron}/></p></div>})
+            return 
+          }
+        }
+      }
+
+      //Si llegamos a este punto, ya no existen mas jugadas posibles, y se tira la ficha a la basura
+      var newBasura = this.clonar(this.state.basura);
+      const idx = this.props.sala["fichas"].findIndex(x => x === ficha)
+      newBasura.push(idx)
+      var newCanasta = this.state.fichasEnCanasta.slice()
+      newCanasta.splice(this.state.fichasEnCanasta.findIndex(x => x === idx), 1)
+      this.setState({basura: newBasura, fichasEnCanasta: newCanasta, error: '', fichaElegida: null})
+    } else {
+      if(VERBOSE){
+        console.error("No se pudo tirar: no se selecciono una ficha")
+      }
+    }
+  }
+
+
+  //Esta funcion se llama si se hizo clic en "hacer jugada" y 
+  //se hizo una jugada legal. Calcula si se ha acabado una ronda o no. Si no, 
+  //llama la funcion de "hacerJugada" que se encuentra en Sala.js. Si si,
+  //llama la funcion de "acabarRonda", que tambien se encuentra en Sala.js
+  hacerJugada(){
+    const usuario = this.props.sala["usuarios"][this.props.jugador]["usuario"]
+    this.borrarOps() //Reset la interfaz del usuario
+
+    if(this.state.fichasEnCanasta.length){ 
+      if(VERBOSE){
+        console.log("Jugador haciendo jugada ...")
+      }
+      this.props.hacerJugada(this.state)
+    } else { // Si no quedan fichas en canasta pero el otro si tiene 
+      for(const u in this.props.sala["usuarios"]){
+        if(this.props.sala["usuarios"][u]["usuario"] !== usuario && this.props.sala["usuarios"][u]["canasta"].length){
+          if(VERBOSE){
+            console.log("Jugador haciendo jugada ...")
+          }
+          this.props.hacerJugada(this.state)
+          return 
+        }
+      }
+      //Si no quedan fichas en ni una canasta, se acaba la ronda 
+      this.props.acabarRonda(this.state)
+      if(VERBOSE){
+        console.log("Se acabo la ronda ... ")
+      }
+    }
+  }
+
+
+  //////////////////////////////////////////////
+  //// FUNCIONES DE LA INTERFAZ DE USUARIO /////
+  // Estas funciones sirven para cambiar la   //
+  // aparencia del juego.                     //
+  //////////////////////////////////////////////
+
+  //Borra la informacion de las opacities 
+  //en las columnas que se~nalan donde aun 
+  //caben fichas 
+  borrarOps(){
+    const ops = Array(5)
+    ops[0] = Array(3).fill(false)
+    ops[1] = Array(2).fill(false)
+    ops[2] = Array(1).fill(false)
+    ops[3] = Array(2).fill(false)
+    ops[4] = Array(3).fill(false)
+    this.setState({opacities: ops})
+  }
+
+  // Se~nala dentro de cuales columnas se puede 
+  // colocar la ficha que fue seleccionada 
+  mostrarColumnasPosibles(ficha, columnas){
+    var cols 
+    if(columnas !== null){
+       cols = this.clonar(columnas)
+    } else {
+       cols = this.clonar(this.state.cols)
     }
     var currCol
-    var columnaDisponible
     const nuevasOps = Array(5);
     for(const col in cols){
       currCol = cols[col]
@@ -359,7 +445,7 @@ class Jugador extends React.Component{
           (this.acuerda(ficha, this.getSubset(currCol)))) {
           for(const f in cols[col]){
             if(cols[col][f] == null){
-              nuevasOps[col][f] = true
+              nuevasOps[col][f] = true // Caben fichas dentro de esta columna 
               break
             }
           }
@@ -369,70 +455,9 @@ class Jugador extends React.Component{
     this.setState({opacities: nuevasOps})
   }
 
-// Se~nalar el subconjunto segun la ficha seleccionada 
-//La funcion que se llama cuando se selecciona una ficha en la canasta
-  elegirSubconjunto(ficha){
-    this.setState({fichaElegida: ficha})
-    var subsetlen = this.state.subset.length
-    var columnas = null
-    console.log(`ficha seleccionada: ${ficha["color"]}, ${ficha["patron"]},  indice: ${ficha["id"]}`)
-    // Si no se ha eligido una ficha o si la ficha no acuerda
-    if(subsetlen == 0 || !this.acuerda(ficha)){
-      console.log(`O no se eligio una ficha, o no acuerda!`)
-      if(!this.acuerda(ficha)){ //Hate calculating this twice but whatever
-        console.log("Borrando columnas ...")
-        columnas = this.borrarColumnas()
-        console.log("Se borro!")
-      } 
-      this.setState({subset: [ficha["color"], ficha["patron"]]})
-    } else {
-      if(subsetlen == 2){ // Solo se ha elegido una ficha
-        if(this.state.subset.includes(ficha["patron"])){
-          if(!this.state.subset.includes(ficha["color"])){ //Si NO son identicas
-              this.setState({subset: [ficha["patron"]]})
-          }
-        } else { //Como concuerdan, no se tiene que checar si tienen el mismo color
-          this.setState({subset: [ficha["color"]]})
-        } 
-      } else if (subsetlen == 1){ // Ya se han elegido >1 fichas no identicas, y la nueva elegida concuerda
-        this.mostrarColumnasPosibles(ficha, columnas);
-        return; //no hay nada mas que hacer
-      } else {
-        console.log(`ERROR App.js 184 - The maximum length of subset is 2. Current subset: ${this.state.subset}`);
-      }
-    }
-    this.mostrarColumnasPosibles(ficha, columnas);
-    return ficha
-  }
 
-  renderFicha(ficha, op = true){
-    if(ficha){
-      var funcionOnclick = () => void 0
-      if(this.state.fichasEnCanasta.includes(ficha["id"]) && this.props.status == "activo"){
-        var funcionOnclick = () => this.elegirSubconjunto(ficha)
-      }
-      let color = ficha["color"]
-      let style = {}
-      if(op){
-        if(this.state.fichaElegida == ficha){
-          style = {border: '2px solid black'}
-        }
-      } else {
-        style = {opacity: "50%"}
-      }
-      let simbolo = ficha["patron"]
-      return(<Ficha fichaItem = {ficha}
-                    style = {style}
-                    color = {ficha["color"]}
-                    pueblo = {this.props.sala["pueblo"]}
-                    key = {ficha["id"]}
-                    simbolo = {simbolo}
-                    onclick= {funcionOnclick}  />)
-    } else {
-      return null
-    }
-  }
-
+  //Esta funcion crea el boton de "hacer jugada"
+  //Determina si es posible hacer una jugada 
   goButtonOnClickFunction(){
     let onClick = () => alert("No es tu turno")
     let style = {opacity: "50%"}
@@ -448,7 +473,9 @@ class Jugador extends React.Component{
       }
     }
     onClick = () => {this.setState({error:<div class = "error"><p>No se selecciono un subconjunto completo</p></div>})}
-    if(this.state.subset.length > 0 ){ //Si se hizo una jugada
+
+    //Si la jugada es posible .... 
+    if(this.state.subset.length > 0 ){ 
       if(quedanFichas.length > 0 ){
         if(quedanFichas.reduce((x, y) => x || y)){
           style = {};
@@ -462,29 +489,56 @@ class Jugador extends React.Component{
     return(<button style = {style} onClick={onClick}>Hacer jugada</button>)
   }
 
-  renderGoButton(){
-    if(this.props.socket && !this.props.sala["local"]){
-      if(this.props.socket.current.id == this.props.sala["turno"]){
-        return this.goButtonOnClickFunction()
+  //El JSX/HTML para las fichas 
+  renderFicha(ficha, op = true){
+    if(ficha){
+      var funcionOnclick = () => void 0
+      if(this.state.fichasEnCanasta.includes(ficha["id"]) && this.props.status === "activo"){
+        //Solo se pueden hacer clic en las fichas que estan en la canasta del jugador actual
+        funcionOnclick = () => this.elegirSubconjunto(ficha)
       }
-    } else if (this.props.sala["local"]){
-      if (this.props.sala["usuarios"][this.props.jugador]["usuario"] == this.props.sala["turno"]){
-        return this.goButtonOnClickFunction()
+      let style = {}
+      if(op){
+        if(this.state.fichaElegida === ficha){
+          style = {border: '2px solid black'}
+        }
+      } else {
+        //Las fichas que no caben dentro del subconjunto actual
+        style = {opacity: "50%"}
       }
+      let simbolo = ficha["patron"]
+      return(<Ficha fichaItem = {ficha}
+                    style = {style}
+                    color = {ficha["color"]}
+                    pueblo = {this.props.sala["pueblo"]}
+                    key = {ficha["id"]}
+                    simbolo = {simbolo}
+                    onclick= {funcionOnclick}  />)
+    } else {
+      return null
     }
+  }
+
+
+  //El JSX/HTML para el boton de "hacer jugada"
+  renderGoButton(){
+    if (this.props.sala["usuarios"][this.props.jugador]["usuario"] === this.props.sala["turno"]){
+        return this.goButtonOnClickFunction()
+      }
     return(<button style = {{opacity: "50%"}} onClick={() => alert("No es tu turno")}>Hacer jugada</button>)
   }
 
+  //El JSX/HTML para el boton de "deshacer"
   renderUndoButton(){
     return(<button onClick = {() => this.borrarColumnas()}> Deshacer </button>)
   }
 
-  //Mostrar la canasta, tambien el boton para hacer jugada
+  //El JSX/HTML para la canasta
   renderCanasta(){
     const fich = []
     for (const ficha in this.state.fichasEnCanasta){
       var fichaActual = this.state.fichasEnCanasta[ficha]
-      if (this.state.subset.length == 0 || this.acuerda(this.props.sala["fichas"][fichaActual])) { 
+      if (this.state.subset.length === 0 || this.acuerda(this.props.sala["fichas"][fichaActual])) { 
         fich.push(this.renderFicha(this.props.sala["fichas"][fichaActual]))
       } else {
         fich.push(this.renderFicha(this.props.sala["fichas"][fichaActual], false))
@@ -497,11 +551,11 @@ class Jugador extends React.Component{
   renderTablero(){
     var columnas
     columnas = (arr) => arr.map(x => Array.isArray(x) ? columnas(x) : this.renderFicha(this.props.sala["fichas"][x]))
-    if(this.props.sala["status"] == "activo" || this.props.sala["status"] == "final"){
+    if(this.props.sala["status"] === "activo" || this.props.sala["status"] === "final"){
       return(<Tablero 
                       ficha = {this.state.fichaElegida} 
                       puntuacion = {this.props.sala["usuarios"][this.props.jugador].puntuacion[1]}
-                      cols = {columnas(this.state.cols)} dndFicha = {(c, f) => this.dragAndDropFicha(c, f)} ponerFicha = {(c, f) => this.ponerFicha(c, f)} 
+                      cols = {columnas(this.state.cols)} ponerFicha = {(c, f) => this.ponerFicha(c, f)} 
                       opacities = {this.state.opacities}
                       tableroFichas = {columnas(this.state.tablero)}/>)
     } else {
@@ -509,6 +563,7 @@ class Jugador extends React.Component{
     }
   }
 
+  //JSX/HTML del jugador (tablero, basura, y canasta)
   renderJugador(){
     var renderBasura = (arr) => arr.map(x => this.renderFicha(this.props.sala["fichas"][x]))
     return(
@@ -529,18 +584,15 @@ class Jugador extends React.Component{
       )
   }
 
+  //El JSX/HTML del jugador y los botones de deshacer/hacer jugada
   render(){
     var cls = "botones-y-jugador"
-    if(!this.props.sala["local"]){
-      var mostrarBotones = (this.props.socket.current.id == this.props.sala["usuarios"][this.props.jugador]["usuario"])  && (this.props.socket.current.id == this.props.sala["turno"])
-    } else { //multiplayer local
-      var mostrarBotones = (this.props.sala["usuarios"][this.props.jugador]["usuario"] == this.props.sala["turno"])
-    }
+    var mostrarBotones = (this.props.sala["usuarios"][this.props.jugador]["usuario"] === this.props.sala["turno"])
     var botones = [this.renderGoButton(), this.renderUndoButton()]
-    if(this.props.sala["usuarios"][this.props.jugador]["usuario"] == this.props.sala["turno"] && this.props.sala["status"] != "final"){
+    if(this.props.sala["usuarios"][this.props.jugador]["usuario"] === this.props.sala["turno"] && this.props.sala["status"] !== "final"){
       cls = "botones-y-jugador jugador-actual"
     }
-    if(mostrarBotones && (this.props.sala["status"] == "activo")){
+    if(mostrarBotones && (this.props.sala["status"] === "activo")){
       return(
         <div class = {cls}>
             <div class = "botones">
@@ -551,7 +603,7 @@ class Jugador extends React.Component{
           </div>
       )
     } else {
-      if(this.props.sala["status"] == "final"){
+      if(this.props.sala["status"] === "final"){
         if(this.props.ganador){
           return(<div class = {"ganador " + cls}>{this.renderJugador()}<h2>¡Ganador!</h2></div>)
         }
