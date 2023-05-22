@@ -1,13 +1,14 @@
 {
   "files": {
-    "main.css": "./static/css/main.a9cba103.css",
-    "main.js": "./static/js/main.487c1491.js",
+    "main.css": "./static/css/main.e839f725.css",
+    "main.js": "./static/js/main.165b544f.js",
     "static/js/787.15c391a9.chunk.js": "./static/js/787.15c391a9.chunk.js",
     "static/media/Tzotzil.pdf": "./static/media/Tzotzil.9d0660f424cb3061390d.pdf",
     "static/media/Nahua.pdf": "./static/media/Nahua.dbda0c37162ea0b93312.pdf",
     "static/media/Raramuri.pdf": "./static/media/Raramuri.cfce9ab2381da3865ddc.pdf",
     "static/media/Otomi.pdf": "./static/media/Otomi.a01ba0814fef234cd532.pdf",
     "static/media/instrucciones_digital5_2.png": "./static/media/instrucciones_digital5_2.f9fb25e4470e03c8bd1a.png",
+    "static/media/Logo_INAH.png": "./static/media/Logo_INAH.cb2e287af7286f8627c4.png",
     "static/media/telar de cintura.png": "./static/media/telar de cintura.c2c7efccb6e06f7fdf1a.png",
     "static/media/instrucciones_digital2.png": "./static/media/instrucciones_digital2.87dc77dae3447c21158a.png",
     "static/media/instrucciones_digital5.png": "./static/media/instrucciones_digital5.5fdaaa110758785603d4.png",
@@ -36,6 +37,7 @@
     "static/media/azul3.png": "./static/media/azul3.47dfefa3da486dc4b738.png",
     "static/media/menu3.png": "./static/media/menu3.265d5b1988298562cc12.png",
     "static/media/instrucciones_digital2_2.png": "./static/media/instrucciones_digital2_2.4d3e21550166b316aa93.png",
+    "static/media/museo.png": "./static/media/museo.9b81eba0e0fb984cae6d.png",
     "static/media/blanco3.png": "./static/media/blanco3.a88855b34f8489a8f82d.png",
     "static/media/rojo5.png": "./static/media/rojo5.083a290c161f41ab3125.png",
     "static/media/verde5.png": "./static/media/verde5.e62403bbba1c055c6667.png",
@@ -68,12 +70,12 @@
     "static/media/enjulio_bajo.png": "./static/media/enjulio_bajo.ce28d830edcb247a748c.png",
     "static/media/enjulio_sup_2.png": "./static/media/enjulio_sup_2.961e559c5d618c4996ef.png",
     "index.html": "./index.html",
-    "main.a9cba103.css.map": "./static/css/main.a9cba103.css.map",
-    "main.487c1491.js.map": "./static/js/main.487c1491.js.map",
+    "main.e839f725.css.map": "./static/css/main.e839f725.css.map",
+    "main.165b544f.js.map": "./static/js/main.165b544f.js.map",
     "787.15c391a9.chunk.js.map": "./static/js/787.15c391a9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a9cba103.css",
-    "static/js/main.487c1491.js"
+    "static/css/main.e839f725.css",
+    "static/js/main.165b544f.js"
   ]
 }
