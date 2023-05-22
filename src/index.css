@@ -27,6 +27,19 @@ body {
   cursor: pointer;
 }
 
+
+.footer{
+    width:  80%;
+    margin:  20px auto;
+    text-align: center;
+    font-size: 0.8em;
+    color: saddlebrown;
+}
+
+.footer img{
+  width:  5%;
+}
+
 h1{
   text-align: center;
   font-size: 2.5em;
@@ -49,6 +62,22 @@ code {
 
   .header{
     display: none;
+  }
+
+  .footer{
+    position: fixed;
+    margin-left: 10%;
+    height: 3wh;
+    margin-bottom: -3wh;
+    padding: none;
+  }
+
+  .footer p{
+    font-size: 0.5em;
+  }
+
+  .footer img{
+    width: 15%;
   }
 
 } 

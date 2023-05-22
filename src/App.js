@@ -68,9 +68,9 @@ function App() {
                     <form id="multiplayer-local" action = "">
                     <p>Tema de las fichas:     
                     <select name ="culturas" id = "pueblo">
-                      <option value = "otomi">Otomi/hñähñu </option>
+                      <option value = "otomi">Otomí/hñähñu </option>
                       <option value = "tzotzil"> Tzotzil </option>
-                      <option value = "raramuri"> Raramuri </option>
+                      <option value = "raramuri"> Rarámuri </option>
                       <option value = "nahua"> Nahua (Hueyapan) </option>
                     </select></p>
                     <p>Numero de jugadores:
@@ -108,7 +108,13 @@ function App() {
               </li>
             </div>  
         }
+        <div class="footer">
+        <p>Desarrollado por C. S. García Martínez, 2023. Ilustración de C. S. García Martínez, con base en diseños de origen nahua, tzotzil, hñähñu, y rarámuri. Propuesta original y validación del contenido por el Museo Nacional de Antropología.</p>
+        <img src = {imagenes_tutorial.header["footer_INAH"]} alt= "Logo del INAH"/>
+        <img src = {imagenes_tutorial.header["footer_MNA"]} alt= "Logo del Museo Nacional de Antropología"/>
+        </div>
       </div>
+
   );
 }
 

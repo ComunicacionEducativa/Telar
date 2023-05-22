@@ -127,7 +127,10 @@ import ins5 from './instrucciones_digital5.png'
 import ins52 from './instrucciones_digital5_2.png'
 import ins6 from './instrucciones_digital6.png'
 import ins7 from './instrucciones_digital7.png'
+
 import telar from './telar.png'
+import mna from './museo.png'
+import inah from './Logo_INAH.png'
 
 import menu from './menu.png'
 import menu_nahua1 from './nahua/menu1.png'
@@ -215,7 +218,9 @@ const imagenes_tutorial = {
 }
 
 const header = {
-  header: telar
+  header: telar,
+  footer_INAH: inah,
+  footer_MNA: mna
 }
 
 const iconos_menu = {
